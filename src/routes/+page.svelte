@@ -25,11 +25,25 @@
 	let lastRefresh = $state(new Date());
 	let refreshing = $state(false);
 
-	// Auto-load news on mount if empty (server-side may return empty on first visit)
+	// Sync server data after hydration (Svelte 5 $state doesn't auto-update from props)
 	$effect(() => {
-		if (newsItems.length === 0 && !refreshing) {
-			refreshData();
+		if (data.newsItems && data.newsItems.length > 0 && newsItems.length === 0) {
+			newsItems = data.newsItems;
 		}
+		if (data.threatLevel) {
+			threatLevel = data.threatLevel;
+		}
+	});
+
+	// Auto-load news on mount if still empty after hydration sync
+	$effect(() => {
+		// Small delay to allow hydration sync to complete first
+		const timeout = setTimeout(() => {
+			if (newsItems.length === 0 && !refreshing) {
+				refreshData();
+			}
+		}, 100);
+		return () => clearTimeout(timeout);
 	});
 
 	// Auto-refresh every 5 minutes
