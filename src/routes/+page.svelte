@@ -19,30 +19,24 @@
 		tone: 'level-3' as Tone
 	};
 
-	// Reactive state for live updates
-	let threatLevel = $state(data.threatLevel ?? defaultThreatLevel);
-	let newsItems = $state(data.newsItems ?? []);
+	// Local state for client-side refreshed data (null = use server data)
+	let localThreatLevel = $state<typeof data.threatLevel | null>(null);
+	let localNewsItems = $state<typeof data.newsItems | null>(null);
 	let lastRefresh = $state(new Date());
 	let refreshing = $state(false);
 
-	// Sync server data after hydration (Svelte 5 $state doesn't auto-update from props)
-	$effect(() => {
-		if (data.newsItems && data.newsItems.length > 0 && newsItems.length === 0) {
-			newsItems = data.newsItems;
-		}
-		if (data.threatLevel) {
-			threatLevel = data.threatLevel;
-		}
-	});
+	// Derived values: prefer local refreshed data, fallback to server data
+	// This ensures SSR uses server data directly, while client updates use local state
+	const threatLevel = $derived(localThreatLevel ?? data.threatLevel ?? defaultThreatLevel);
+	const newsItems = $derived(localNewsItems ?? data.newsItems ?? []);
 
-	// Auto-load news on mount if still empty after hydration sync
+	// Auto-load news on mount if server returned empty (rare edge case)
 	$effect(() => {
-		// Small delay to allow hydration sync to complete first
 		const timeout = setTimeout(() => {
 			if (newsItems.length === 0 && !refreshing) {
 				refreshData();
 			}
-		}, 100);
+		}, 500);
 		return () => clearTimeout(timeout);
 	});
 
@@ -71,7 +65,7 @@
 
 			if (threatRes.ok) {
 				const threatData = await threatRes.json();
-				threatLevel = {
+				localThreatLevel = {
 					level: threatData.level,
 					label: threatData.name.toUpperCase(),
 					description: threatData.description || 'Current threat assessment for Australia.',
@@ -90,7 +84,7 @@
 
 			if (newsRes.ok) {
 				const articles = await newsRes.json();
-				newsItems = articles.map((article: any) => ({
+				localNewsItems = articles.map((article: any) => ({
 					id: article.id,
 					title: article.title,
 					summary: article.summary || article.title,
