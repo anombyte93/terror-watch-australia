@@ -4,6 +4,9 @@
 		name="description"
 		content="Find emergency actions, report pathways, threat level explanations, and support resources for Australians."
 	/>
+	<meta property="og:title" content="Safety Guidance Hub | Terror Watch Australia" />
+	<meta property="og:description" content="Find emergency actions, report pathways, threat level explanations, and support resources for Australians." />
+	<meta property="og:url" content="https://terrorwatch.au/safety" />
 </svelte:head>
 
 <main class="page">

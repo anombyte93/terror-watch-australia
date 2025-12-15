@@ -128,6 +128,60 @@
 		name="description"
 		content="Australia's terrorism threat level, recent signals, and practical safety guidance in one place."
 	/>
+
+	<!-- Open Graph -->
+	<meta property="og:title" content="Terror Watch Australia · Current Threat Level" />
+	<meta property="og:description" content="Australia's terrorism threat level, recent signals, and practical safety guidance in one place." />
+	<meta property="og:url" content="https://terrorwatch.au" />
+	<meta property="og:image" content="https://terrorwatch.au/og-image.png" />
+
+	<!-- Twitter -->
+	<meta name="twitter:title" content="Terror Watch Australia · Current Threat Level" />
+	<meta name="twitter:description" content="Australia's terrorism threat level, recent signals, and practical safety guidance in one place." />
+	<meta name="twitter:image" content="https://terrorwatch.au/og-image.png" />
+
+	<!-- JSON-LD Structured Data -->
+	{@html `<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		"name": "Terror Watch Australia",
+		"url": "https://terrorwatch.au",
+		"description": "Monitor Australia's current terrorism threat level with real-time updates and safety guidance",
+		"publisher": {
+			"@type": "Organization",
+			"name": "Terror Watch Australia",
+			"logo": {
+				"@type": "ImageObject",
+				"url": "https://terrorwatch.au/logo.png"
+			}
+		},
+		"potentialAction": {
+			"@type": "SearchAction",
+			"target": "https://terrorwatch.au/search?q={search_term_string}",
+			"query-input": "required name=search_term_string"
+		}
+	}
+	</script>`}
+
+	<!-- Additional JSON-LD for Government Service -->
+	{@html `<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "GovernmentService",
+		"name": "National Security Threat Level",
+		"serviceType": "Public Safety Information",
+		"provider": {
+			"@type": "GovernmentOrganization",
+			"name": "Australian Government",
+			"url": "https://www.nationalsecurity.gov.au"
+		},
+		"areaServed": {
+			"@type": "Country",
+			"name": "Australia"
+		}
+	}
+	</script>`}
 </svelte:head>
 
 <section class="hero" id="threat">

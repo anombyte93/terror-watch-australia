@@ -42,6 +42,9 @@
 <svelte:head>
 	<title>Analytics | Terror Watch Australia</title>
 	<meta name="description" content="Historical security trends and news analytics for Australia" />
+	<meta property="og:title" content="Analytics | Terror Watch Australia" />
+	<meta property="og:description" content="Historical security trends and news analytics for Australia" />
+	<meta property="og:url" content="https://terrorwatch.au/analytics" />
 </svelte:head>
 
 <div class="analytics-page">
