@@ -1,5 +1,5 @@
 {
-	"name": "task-01-project-setup",
+	"name": "terror-watch-australia",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -38,8 +38,10 @@
 	},
 	"dependencies": {
 		"@sveltejs/adapter-node": "^5.4.0",
+		"dotenv": "^17.2.3",
 		"drizzle-orm": "^0.45.1",
 		"postgres": "^3.4.7",
+		"rss-parser": "^3.13.0",
 		"zod": "^4.1.13"
 	}
 }
