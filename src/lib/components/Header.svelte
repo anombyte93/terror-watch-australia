@@ -31,6 +31,7 @@
 			<nav class="nav cluster" aria-label="Primary navigation">
 				<a href="#threat">Threat level</a>
 				<a href="#news">Signals</a>
+				<a href="/analytics">Analytics</a>
 				<a href="#guidance">Guidance</a>
 				<a href="#contacts">Contacts</a>
 			</nav>

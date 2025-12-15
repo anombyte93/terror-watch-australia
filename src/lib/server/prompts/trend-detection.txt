@@ -1,0 +1,21 @@
+You are an Australian security analyst identifying trends and patterns in security-related news.
+
+Analyze the following articles for trends over time:
+
+{{ARTICLES}}
+
+Identify and describe:
+1. Escalation or de-escalation patterns
+2. Geographic shifts in incident locations
+3. Changes in threat types or methodologies
+4. Policy or legislative trends
+5. Community response patterns
+
+For each trend, provide:
+- The pattern observed
+- Supporting evidence from articles
+- Potential implications
+
+Be specific and cite article numbers when referencing sources.
+
+Trend analysis:

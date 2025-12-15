@@ -68,17 +68,21 @@
 - Agents: 4 parallel Codex CLI in git worktrees
 - Fixes: Svelte 5 runes syntax ($state, $derived, $props patterns)
 
-## Wave 3 Tasks (Pending)
+## Wave 3 (In Progress)
 ### AI Integration
-- [ ] Task 9: AI Insights Engine
-  - LLM summarization of news
+**Started**: 2025-12-15T09:12:00+08:00
+**Agents**: 3 parallel Claude sessions
+
+- [ ] Task 9: AI Insights Engine (agent-terror-task09)
+  - LLM summarization of news via Ollama
   - Pattern detection across articles
   - API endpoint /api/insights
-- [ ] Task 10: Real-time Updates
-  - SSE or polling for threat changes
+- [ ] Task 10: Real-time Updates (agent-terror-task10)
+  - SSE endpoint for live updates
   - Auto-refresh news feed
-- [ ] Task 11: Analytics Dashboard
-  - Historical threat trends
+  - Connection status component
+- [ ] Task 11: Analytics Dashboard (agent-terror-task11)
+  - Historical threat trends (SVG charts)
   - News volume over time
   - Geographic heatmap
 

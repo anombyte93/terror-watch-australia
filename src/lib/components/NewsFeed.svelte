@@ -3,8 +3,11 @@
 <script lang="ts">
 	import NewsCard from './NewsCard.svelte';
 	import NewsFilters from './NewsFilters.svelte';
+	import ConnectionStatus from './ConnectionStatus.svelte';
 	import { NEWS_DAYS_WINDOW, NEWS_PAGE_SIZE, STATE_OPTIONS } from '$lib/config/news';
 	import type { NewsCategory, StoredArticle } from '$lib/types/news';
+	import { createEventStream } from '$lib/hooks/useEventStream.svelte';
+	import type { NewsUpdateEvent } from '$lib/types/events';
 
 	type FilterCategory = NewsCategory | 'all';
 	type FilterState = 'all' | string;
@@ -14,6 +17,7 @@
 		initialArticles: StoredArticle[];
 		initialLimit?: number;
 		initialError?: string | null;
+		enableRealtime?: boolean;
 	};
 	const props: Props = $props();
 
@@ -25,6 +29,16 @@
 	let isLoading = $state(false);
 	let errorMsg: string | null = $state(props.initialError ?? null);
 	let hasMore = $state((props.initialArticles?.length ?? 0) >= pageSize);
+	let newArticlesCount = $state(0);
+
+	// Real-time updates via SSE
+	const eventStream = props.enableRealtime !== false
+		? createEventStream({
+				onNewsUpdate: (event: NewsUpdateEvent) => {
+					newArticlesCount += event.data.count;
+				}
+			})
+		: null;
 
 	const grouped = $derived(groupArticles(articles));
 	const totalLabel = $derived(
@@ -121,6 +135,11 @@
 		if (!hasMore || isLoading) return;
 		fetchArticles(page + 1);
 	}
+
+	function refreshForNewArticles() {
+		newArticlesCount = 0;
+		fetchArticles(1);
+	}
 </script>
 
 <section class="news-feed">
@@ -133,8 +152,22 @@
 				articles appear first.
 			</p>
 		</div>
-		<div class="totals" aria-live="polite">{totalLabel}</div>
+		<div class="header-actions">
+			{#if eventStream}
+				<ConnectionStatus
+					connectionState={eventStream.connectionState}
+					lastEventTime={eventStream.state.lastEventTime}
+				/>
+			{/if}
+			<div class="totals" aria-live="polite">{totalLabel}</div>
+		</div>
 	</header>
+
+	{#if newArticlesCount > 0}
+		<button type="button" class="new-articles-banner" onclick={refreshForNewArticles}>
+			{newArticlesCount} new article{newArticlesCount === 1 ? '' : 's'} available — Click to refresh
+		</button>
+	{/if}
 
 	<NewsFilters
 		states={[...STATE_OPTIONS]}
@@ -231,6 +264,13 @@
 		max-width: 720px;
 	}
 
+	.header-actions {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 8px;
+	}
+
 	.totals {
 		background: linear-gradient(140deg, rgba(57, 140, 255, 0.2), rgba(0, 225, 255, 0.2));
 		border: 1px solid rgba(136, 196, 255, 0.4);
@@ -240,6 +280,35 @@
 		font-weight: 700;
 		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 		white-space: nowrap;
+	}
+
+	.new-articles-banner {
+		width: 100%;
+		padding: 12px 16px;
+		border-radius: 12px;
+		border: 1px solid rgba(74, 222, 128, 0.4);
+		background: linear-gradient(130deg, rgba(22, 101, 52, 0.6), rgba(34, 197, 94, 0.3));
+		color: #bbf7d0;
+		font-weight: 700;
+		cursor: pointer;
+		text-align: center;
+		animation: pulse-banner 2s ease-in-out infinite;
+		transition: transform 150ms ease, box-shadow 150ms ease;
+	}
+
+	.new-articles-banner:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+	}
+
+	@keyframes pulse-banner {
+		0%,
+		100% {
+			border-color: rgba(74, 222, 128, 0.4);
+		}
+		50% {
+			border-color: rgba(74, 222, 128, 0.8);
+		}
 	}
 
 	.timeline {
