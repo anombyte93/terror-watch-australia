@@ -3,7 +3,10 @@ import type { ThreatLevel } from '$lib/types/threat';
 
 const STALE_AFTER_MS = 1000 * 60 * 60 * 6; // 6 hours
 
-export const load: PageLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch, parent }) => {
+	// Get data from +page.server.ts (includes threatLevel and newsItems)
+	const parentData = await parent();
+
 	try {
 		const response = await fetch('/api/threat-level', {
 			headers: { Accept: 'application/json' }
@@ -11,6 +14,7 @@ export const load: PageLoad = async ({ fetch }) => {
 
 		if (!response.ok) {
 			return {
+				...parentData,
 				threat: null,
 				error: 'Unable to load the current threat level right now.',
 				isStale: false
@@ -28,10 +32,11 @@ export const load: PageLoad = async ({ fetch }) => {
 			threat.source === 'database' ||
 			threat.source === 'fallback';
 
-		return { threat, error: null, isStale };
+		return { ...parentData, threat, error: null, isStale };
 	} catch (error) {
 		console.error('Failed to load threat level', error);
 		return {
+			...parentData,
 			threat: null,
 			error: 'Unable to load the current threat level right now.',
 			isStale: false
