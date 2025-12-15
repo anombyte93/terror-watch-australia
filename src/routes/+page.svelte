@@ -9,9 +9,19 @@
 	type Category = 'incident' | 'arrest' | 'policy' | 'community' | 'general';
 	type Tone = 'default' | 'muted' | 'level-1' | 'level-2' | 'level-3' | 'level-4' | 'level-5';
 
+	// Default threat level fallback
+	const defaultThreatLevel = {
+		level: 3,
+		label: 'PROBABLE',
+		description: 'Current threat assessment for Australia.',
+		lastUpdated: new Date().toLocaleString('en-AU'),
+		message: 'Stay vigilant and report suspicious activity to the National Security Hotline.',
+		tone: 'level-3' as Tone
+	};
+
 	// Reactive state for live updates
-	let threatLevel = $state(data.threatLevel);
-	let newsItems = $state(data.newsItems);
+	let threatLevel = $state(data.threatLevel ?? defaultThreatLevel);
+	let newsItems = $state(data.newsItems ?? []);
 	let lastRefresh = $state(new Date());
 	let refreshing = $state(false);
 

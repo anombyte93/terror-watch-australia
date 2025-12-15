@@ -22,7 +22,7 @@ export const threatLevelNameEnum = pgEnum('threat_level_name', [
 	'CERTAIN'
 ]);
 
-export const newsCategoryEnum = pgEnum('news_category', ['incident', 'arrest', 'policy', 'community']);
+export const newsCategoryEnum = pgEnum('news_category', ['incident', 'arrest', 'policy', 'community', 'general']);
 
 export const aiInsightTypeEnum = pgEnum('ai_insight_type', ['daily_summary', 'threat_context', 'trend']);
 
