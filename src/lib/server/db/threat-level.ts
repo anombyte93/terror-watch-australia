@@ -24,14 +24,17 @@ const ensureClient = (): SqlClient | null => {
 };
 
 const ensureTable = async (sql: SqlClient) => {
+	// Table is created via Drizzle migrations with correct schema
+	// This is just a safety check - table should already exist
 	await sql`
 		CREATE TABLE IF NOT EXISTS threat_levels (
 			id SERIAL PRIMARY KEY,
-			level INTEGER NOT NULL,
-			name TEXT NOT NULL,
+			level_number INTEGER NOT NULL CHECK (level_number BETWEEN 1 AND 5),
+			level_name TEXT NOT NULL,
 			description TEXT NOT NULL,
-			link TEXT NOT NULL,
-			fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+			scraped_at TIMESTAMPTZ NOT NULL,
+			source_url VARCHAR(1024) NOT NULL,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 		)
 	`;
 };
@@ -43,11 +46,11 @@ export const loadLatestThreatLevel = async (): Promise<ThreatLevel | null> => {
 	try {
 		await ensureTable(sql);
 		const rows = await sql<
-			{ level: number; name: string; description: string; link: string; fetched_at: Date }[]
+			{ level_number: number; level_name: string; description: string; source_url: string; scraped_at: Date }[]
 		>`
-				SELECT level, name, description, link, fetched_at
+				SELECT level_number, level_name, description, source_url, scraped_at
 				FROM threat_levels
-				ORDER BY fetched_at DESC
+				ORDER BY scraped_at DESC
 				LIMIT 1
 			`;
 
@@ -57,11 +60,11 @@ export const loadLatestThreatLevel = async (): Promise<ThreatLevel | null> => {
 
 		const [latest] = rows;
 		return {
-			level: latest.level,
-			name: latest.name,
+			level: latest.level_number,
+			name: latest.level_name,
 			description: latest.description,
-			link: latest.link,
-			fetchedAt: new Date(latest.fetched_at),
+			link: latest.source_url,
+			fetchedAt: new Date(latest.scraped_at),
 			source: 'database'
 		};
 	} catch (error) {
@@ -77,7 +80,7 @@ export const recordThreatLevel = async (threat: ThreatLevel): Promise<void> => {
 	try {
 		await ensureTable(sql);
 		await sql`
-			INSERT INTO threat_levels (level, name, description, link, fetched_at)
+			INSERT INTO threat_levels (level_number, level_name, description, source_url, scraped_at)
 			VALUES (${threat.level}, ${threat.name}, ${threat.description}, ${threat.link}, ${threat.fetchedAt})
 		`;
 	} catch (error) {
