@@ -3,13 +3,13 @@
 **Status**: running
 **Started**: 2025-12-15T07:57:29+08:00
 **Goal**: Build Terror Watch Australia: a SvelteKit website displaying Australia's current terror threat level, aggregating relevant news with AI insights, and providing safety guidance. Deploy to Railway.
-**Current Phase**: 2 (Frontend MVP)
-**Current Wave**: 2
-**Total Waves Completed**: 1
+**Current Phase**: 3 (AI Integration)
+**Current Wave**: 3
+**Total Waves Completed**: 2
 
 ## Progress
 - [x] Phase 1: Infrastructure (Tasks 1-4) ✓ COMPLETE
-- [ ] Phase 2: Frontend MVP (Tasks 5-8)
+- [x] Phase 2: Frontend MVP (Tasks 5-8) ✓ COMPLETE
 - [ ] Phase 3: AI Integration (Tasks 9-11)
 - [ ] Phase 4: Polish & Deploy (Tasks 12-15)
 
@@ -33,17 +33,66 @@
 - Files: 16 changed, +1404 lines
 - Agents: 4 parallel Codex CLI in git worktrees
 
-## Wave 2 Tasks (Pending)
+## Wave 2 Results (Completed)
 ### Frontend MVP
-- [ ] Task 5: Landing Page Component
-- [ ] Task 6: Threat Level Display Component
-- [ ] Task 7: News Feed Component
-- [ ] Task 8: Filtering & State Management
+- [x] Task 5: Threat Level Display
+  - ThreatLevel.svelte - Main threat indicator
+  - ThreatLevelCard.svelte - Detailed info card
+  - ThreatLevelMeter.svelte - Visual gauge
+  - threat-level-palette.ts - Styling utilities
+- [x] Task 6: News Timeline
+  - NewsCard.svelte - Article cards
+  - NewsFeed.svelte - Paginated timeline with grouping
+  - NewsFilters.svelte - Category/state filters
+  - CategoryBadge.svelte - Category indicators
+  - news.ts config - Settings and constants
+- [x] Task 7: Safety Pages
+  - EmergencyBanner.svelte - 000 emergency banner
+  - /safety - Hub with sidebar navigation
+  - /safety/during-attack - Run, Hide, Tell guidance
+  - /safety/report - Suspicious activity reporting
+  - /safety/threat-levels - Threat level explanation
+  - /safety/support - Mental health resources
+- [x] Task 8: Design System
+  - Layout.svelte - Page wrapper
+  - Header.svelte - Site navigation
+  - Footer.svelte - Site footer
+  - Container.svelte - Content container
+  - Card.svelte - Content card
+  - Button.svelte - Multi-variant button
+  - app.css - Design tokens and variables
+
+### Wave 2 Commit
+- Commit: `fd9392d`
+- Files: 28 changed, +4348 lines
+- Agents: 4 parallel Codex CLI in git worktrees
+- Fixes: Svelte 5 runes syntax ($state, $derived, $props patterns)
+
+## Wave 3 Tasks (Pending)
+### AI Integration
+- [ ] Task 9: AI Insights Engine
+  - LLM summarization of news
+  - Pattern detection across articles
+  - API endpoint /api/insights
+- [ ] Task 10: Real-time Updates
+  - SSE or polling for threat changes
+  - Auto-refresh news feed
+- [ ] Task 11: Analytics Dashboard
+  - Historical threat trends
+  - News volume over time
+  - Geographic heatmap
+
+## Wave 4 Tasks (Pending)
+### Polish & Deploy
+- [ ] Task 12: SEO & Meta Tags
+- [ ] Task 13: Performance Optimization
+- [ ] Task 14: Railway Deployment
+- [ ] Task 15: Monitoring & Alerts
 
 ## Metrics
-- Waves completed: 1
-- Tasks completed: 4/15
-- Estimated completion: 4 waves
+- Waves completed: 2
+- Tasks completed: 8/15
+- Estimated completion: 2 more waves
 
 ## Key URLs
 - Source: https://www.nationalsecurity.gov.au/national-threat-level/current-national-terrorism-threat-level
