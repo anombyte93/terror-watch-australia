@@ -19,17 +19,21 @@
 		tone: 'level-3' as Tone
 	};
 
-	// Local state for client-side refreshed data (null = use server data)
-	let refreshedThreatLevel = $state<typeof data.threatLevel | null>(null);
-	let refreshedNewsItems = $state<typeof data.newsItems | null>(null);
+	// Refreshed data from client-side fetch (null = use server data)
+	let _refreshedThreatLevel = $state<typeof data.threatLevel | null>(null);
+	let _refreshedNewsItems = $state<typeof data.newsItems | null>(null);
 	let lastRefresh = $state(new Date());
 	let refreshing = $state(false);
+
+	// Derived values: prefer refreshed data, fallback to server data
+	// Using $derived.by for explicit reactivity - reads current data at render time
+	const threatLevel = $derived.by(() => _refreshedThreatLevel ?? data.threatLevel ?? defaultThreatLevel);
+	const newsItems = $derived.by(() => _refreshedNewsItems ?? data.newsItems ?? []);
 
 	// Auto-load news on mount if server returned empty (rare edge case)
 	$effect(() => {
 		const timeout = setTimeout(() => {
-			const news = refreshedNewsItems ?? data.newsItems ?? [];
-			if (news.length === 0 && !refreshing) {
+			if (newsItems.length === 0 && !refreshing) {
 				refreshData();
 			}
 		}, 500);
@@ -61,7 +65,7 @@
 
 			if (threatRes.ok) {
 				const threatData = await threatRes.json();
-				refreshedThreatLevel = {
+				_refreshedThreatLevel = {
 					level: threatData.level,
 					label: threatData.name.toUpperCase(),
 					description: threatData.description || 'Current threat assessment for Australia.',
@@ -80,7 +84,7 @@
 
 			if (newsRes.ok) {
 				const articles = await newsRes.json();
-				refreshedNewsItems = articles.map((article: any) => ({
+				_refreshedNewsItems = articles.map((article: any) => ({
 					id: article.id,
 					title: article.title,
 					summary: article.summary || article.title,
@@ -243,27 +247,26 @@
 
 <section class="hero" id="threat">
 	<Container width="wide">
-		{@const threat = refreshedThreatLevel ?? data.threatLevel ?? defaultThreatLevel}
 		<div class="hero-grid">
 			<div class="hero-text">
-				<p class="eyebrow">Updated {threat.lastUpdated}</p>
-				<h1>Australia's terrorism threat level is {threat.label}</h1>
-				<p class="lede">{threat.description}</p>
+				<p class="eyebrow">Updated {threatLevel.lastUpdated}</p>
+				<h1>Australia's terrorism threat level is {threatLevel.label}</h1>
+				<p class="lede">{threatLevel.description}</p>
 				<div class="cluster hero-actions">
 					<Button variant="primary" href="#guidance">View safety guidance</Button>
 					<Button variant="outline" href="#news">See recent signals</Button>
 				</div>
 				<div class="hero-note">
 					<span class="dot" aria-hidden="true"></span>
-					{threat.message}
+					{threatLevel.message}
 				</div>
 			</div>
 
-			<Card tone={threat.tone} eyebrow="Threat indicator" title={`Level ${threat.level} · ${threat.label}`}>
+			<Card tone={threatLevel.tone} eyebrow="Threat indicator" title={`Level ${threatLevel.level} · ${threatLevel.label}`}>
 				<p class="muted">Confidence: Elevated</p>
 				<div class="scale">
 					{#each threatScale as level}
-						<div class={`scale-row ${level.level === threat.level ? 'active' : ''}`}>
+						<div class={`scale-row ${level.level === threatLevel.level ? 'active' : ''}`}>
 							<div class="scale-meta">
 								<span class="pill level" style={`--tone:${level.color}`}>Level {level.level}</span>
 								<span class="label">{level.label}</span>
@@ -279,7 +282,6 @@
 
 <section class="section" id="news">
 	<Container width="wide">
-		{@const news = refreshedNewsItems ?? data.newsItems ?? []}
 		<div class="section-header">
 			<div>
 				<p class="eyebrow">
@@ -301,7 +303,7 @@
 		</div>
 
 		<div class="grid news-grid">
-			{#each news as item}
+			{#each newsItems as item}
 				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
 				<a href={item.url} target="_blank" rel="noopener noreferrer" class="news-link">
 					<Card tone={categoryTones[category]} eyebrow={categoryLabels[category]} title={item.title}>
@@ -316,7 +318,7 @@
 				</a>
 			{/each}
 		</div>
-		{#if news.length === 0}
+		{#if newsItems.length === 0}
 			<div class="no-news">
 				<p>No recent security news available. Check back soon for updates.</p>
 			</div>
