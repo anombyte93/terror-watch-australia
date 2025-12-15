@@ -3,14 +3,14 @@
 **Status**: running
 **Started**: 2025-12-15T07:57:29+08:00
 **Goal**: Build Terror Watch Australia: a SvelteKit website displaying Australia's current terror threat level, aggregating relevant news with AI insights, and providing safety guidance. Deploy to Railway.
-**Current Phase**: 3 (AI Integration)
-**Current Wave**: 3
-**Total Waves Completed**: 2
+**Current Phase**: 4 (Polish & Deploy)
+**Current Wave**: 4
+**Total Waves Completed**: 3
 
 ## Progress
 - [x] Phase 1: Infrastructure (Tasks 1-4) ✓ COMPLETE
 - [x] Phase 2: Frontend MVP (Tasks 5-8) ✓ COMPLETE
-- [ ] Phase 3: AI Integration (Tasks 9-11)
+- [x] Phase 3: AI Integration (Tasks 9-11) ✓ COMPLETE
 - [ ] Phase 4: Polish & Deploy (Tasks 12-15)
 
 ## Wave 1 Results (Completed)
@@ -68,23 +68,31 @@
 - Agents: 4 parallel Codex CLI in git worktrees
 - Fixes: Svelte 5 runes syntax ($state, $derived, $props patterns)
 
-## Wave 3 (In Progress)
+## Wave 3 Results (Completed)
 ### AI Integration
-**Started**: 2025-12-15T09:12:00+08:00
-**Agents**: 3 parallel Claude sessions
+**Completed**: 2025-12-15T10:30:00+08:00
 
-- [ ] Task 9: AI Insights Engine (agent-terror-task09)
-  - LLM summarization of news via Ollama
-  - Pattern detection across articles
-  - API endpoint /api/insights
-- [ ] Task 10: Real-time Updates (agent-terror-task10)
-  - SSE endpoint for live updates
-  - Auto-refresh news feed
-  - Connection status component
-- [ ] Task 11: Analytics Dashboard (agent-terror-task11)
-  - Historical threat trends (SVG charts)
-  - News volume over time
-  - Geographic heatmap
+- [x] Task 9: AI Insights Engine
+  - Ollama integration service (ai-insights.ts)
+  - GET/POST /api/insights endpoints
+  - Prompt templates: daily-summary, threat-context, trend-detection
+  - Support for deepseek-r1:7b model
+- [x] Task 10: Real-time Updates (SSE)
+  - Server-Sent Events endpoint (/api/events)
+  - useEventStream Svelte 5 hook ($state, $effect, $derived)
+  - ConnectionStatus.svelte with live indicator
+  - UpdateTracker service for broadcasting changes
+  - Event types: threat-update, news-update, heartbeat, connected
+- [x] Task 11: Analytics Dashboard
+  - Pure CSS/SVG chart components (no external libraries)
+  - StatCard, ThreatTimeline, NewsVolumeChart, GeoDistribution
+  - /analytics page with period selector (7d/30d/90d)
+  - Analytics service and /api/analytics endpoint
+
+### Wave 3 Commit
+- Commit: `d8e8632`
+- Files: 25 changed, +2406 lines
+- Implementation: Direct session (after agent API issues)
 
 ## Wave 4 Tasks (Pending)
 ### Polish & Deploy
@@ -94,9 +102,9 @@
 - [ ] Task 15: Monitoring & Alerts
 
 ## Metrics
-- Waves completed: 2
-- Tasks completed: 8/15
-- Estimated completion: 2 more waves
+- Waves completed: 3
+- Tasks completed: 11/15
+- Estimated completion: 1 more wave (Wave 4: Polish & Deploy)
 
 ## Key URLs
 - Source: https://www.nationalsecurity.gov.au/national-threat-level/current-national-terrorism-threat-level
