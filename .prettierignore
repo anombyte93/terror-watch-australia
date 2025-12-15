@@ -1,0 +1,15 @@
+.svelte-kit
+build
+node_modules
+drizzle
+coverage
+dist
+npm-debug.log*
+yarn-error.log*
+ATLAS_GOAL.md
+ATLAS_STATE.md
+GIGA_PRD.md
+progress.log
+prompts
+_PROMPT.md
+_run.sh
