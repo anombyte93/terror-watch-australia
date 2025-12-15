@@ -20,20 +20,16 @@
 	};
 
 	// Local state for client-side refreshed data (null = use server data)
-	let localThreatLevel = $state<typeof data.threatLevel | null>(null);
-	let localNewsItems = $state<typeof data.newsItems | null>(null);
+	let refreshedThreatLevel = $state<typeof data.threatLevel | null>(null);
+	let refreshedNewsItems = $state<typeof data.newsItems | null>(null);
 	let lastRefresh = $state(new Date());
 	let refreshing = $state(false);
-
-	// Derived values: prefer local refreshed data, fallback to server data
-	// This ensures SSR uses server data directly, while client updates use local state
-	const threatLevel = $derived(localThreatLevel ?? data.threatLevel ?? defaultThreatLevel);
-	const newsItems = $derived(localNewsItems ?? data.newsItems ?? []);
 
 	// Auto-load news on mount if server returned empty (rare edge case)
 	$effect(() => {
 		const timeout = setTimeout(() => {
-			if (newsItems.length === 0 && !refreshing) {
+			const news = refreshedNewsItems ?? data.newsItems ?? [];
+			if (news.length === 0 && !refreshing) {
 				refreshData();
 			}
 		}, 500);
@@ -65,7 +61,7 @@
 
 			if (threatRes.ok) {
 				const threatData = await threatRes.json();
-				localThreatLevel = {
+				refreshedThreatLevel = {
 					level: threatData.level,
 					label: threatData.name.toUpperCase(),
 					description: threatData.description || 'Current threat assessment for Australia.',
@@ -84,7 +80,7 @@
 
 			if (newsRes.ok) {
 				const articles = await newsRes.json();
-				localNewsItems = articles.map((article: any) => ({
+				refreshedNewsItems = articles.map((article: any) => ({
 					id: article.id,
 					title: article.title,
 					summary: article.summary || article.title,
@@ -247,26 +243,27 @@
 
 <section class="hero" id="threat">
 	<Container width="wide">
+		{@const threat = refreshedThreatLevel ?? data.threatLevel ?? defaultThreatLevel}
 		<div class="hero-grid">
 			<div class="hero-text">
-				<p class="eyebrow">Updated {threatLevel.lastUpdated}</p>
-				<h1>Australia's terrorism threat level is {threatLevel.label}</h1>
-				<p class="lede">{threatLevel.description}</p>
+				<p class="eyebrow">Updated {threat.lastUpdated}</p>
+				<h1>Australia's terrorism threat level is {threat.label}</h1>
+				<p class="lede">{threat.description}</p>
 				<div class="cluster hero-actions">
 					<Button variant="primary" href="#guidance">View safety guidance</Button>
 					<Button variant="outline" href="#news">See recent signals</Button>
 				</div>
 				<div class="hero-note">
 					<span class="dot" aria-hidden="true"></span>
-					{threatLevel.message}
+					{threat.message}
 				</div>
 			</div>
 
-			<Card tone={threatLevel.tone} eyebrow="Threat indicator" title={`Level ${threatLevel.level} · ${threatLevel.label}`}>
+			<Card tone={threat.tone} eyebrow="Threat indicator" title={`Level ${threat.level} · ${threat.label}`}>
 				<p class="muted">Confidence: Elevated</p>
 				<div class="scale">
 					{#each threatScale as level}
-						<div class={`scale-row ${level.level === threatLevel.level ? 'active' : ''}`}>
+						<div class={`scale-row ${level.level === threat.level ? 'active' : ''}`}>
 							<div class="scale-meta">
 								<span class="pill level" style={`--tone:${level.color}`}>Level {level.level}</span>
 								<span class="label">{level.label}</span>
@@ -282,6 +279,7 @@
 
 <section class="section" id="news">
 	<Container width="wide">
+		{@const news = refreshedNewsItems ?? data.newsItems ?? []}
 		<div class="section-header">
 			<div>
 				<p class="eyebrow">
@@ -303,7 +301,7 @@
 		</div>
 
 		<div class="grid news-grid">
-			{#each newsItems as item}
+			{#each news as item}
 				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
 				<a href={item.url} target="_blank" rel="noopener noreferrer" class="news-link">
 					<Card tone={categoryTones[category]} eyebrow={categoryLabels[category]} title={item.title}>
@@ -318,7 +316,7 @@
 				</a>
 			{/each}
 		</div>
-		{#if newsItems.length === 0}
+		{#if news.length === 0}
 			<div class="no-news">
 				<p>No recent security news available. Check back soon for updates.</p>
 			</div>
