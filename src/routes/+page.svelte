@@ -33,7 +33,8 @@
 	// Auto-load news on mount if server returned empty (rare edge case)
 	$effect(() => {
 		const timeout = setTimeout(() => {
-			if (newsItems.length === 0 && !refreshing) {
+			const currentNews = _refreshedNewsItems ?? data.newsItems ?? [];
+			if (currentNews.length === 0 && !refreshing) {
 				refreshData();
 			}
 		}, 500);
@@ -303,7 +304,7 @@
 		</div>
 
 		<div class="grid news-grid">
-			{#each newsItems as item}
+			{#each _refreshedNewsItems ?? data.newsItems ?? [] as item}
 				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
 				<a href={item.url} target="_blank" rel="noopener noreferrer" class="news-link">
 					<Card tone={categoryTones[category]} eyebrow={categoryLabels[category]} title={item.title}>
@@ -318,7 +319,7 @@
 				</a>
 			{/each}
 		</div>
-		{#if newsItems.length === 0}
+		{#if (_refreshedNewsItems ?? data.newsItems ?? []).length === 0}
 			<div class="no-news">
 				<p>No recent security news available. Check back soon for updates.</p>
 			</div>
