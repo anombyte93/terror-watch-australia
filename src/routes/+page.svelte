@@ -303,7 +303,7 @@
 			<Button variant="accent" href="#contacts">Emergency contacts</Button>
 		</div>
 
-		<!-- DEBUG: newsItems count = {data.newsItems?.length ?? 'undefined'} -->
+		<p style="color: red; font-weight: bold;">DEBUG: newsItems count = {data.newsItems?.length ?? 'undefined'}</p>
 		<div class="grid news-grid">
 			{#each data.newsItems ?? [] as item}
 				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
