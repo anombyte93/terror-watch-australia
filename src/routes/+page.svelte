@@ -303,9 +303,11 @@
 			<Button variant="accent" href="#contacts">Emergency contacts</Button>
 		</div>
 
-		<p style="color: red; font-weight: bold;">DEBUG: newsItems count = {newsItems.length}</p>
+		<!-- SSR renders with server data directly; client hydrates with reactive newsItems -->
+		{@const ssrNewsItems = data.newsItems ?? []}
+		<p style="color: red; font-weight: bold;">DEBUG: SSR={ssrNewsItems.length} / Reactive={newsItems.length}</p>
 		<div class="grid news-grid">
-			{#each newsItems as item}
+			{#each ssrNewsItems.length > 0 ? ssrNewsItems : newsItems as item}
 				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
 				<a href={item.url} target="_blank" rel="noopener noreferrer" class="news-link">
 					<Card tone={categoryTones[category]} eyebrow={categoryLabels[category]} title={item.title}>
@@ -320,7 +322,7 @@
 				</a>
 			{/each}
 		</div>
-		{#if newsItems.length === 0}
+		{#if ssrNewsItems.length === 0 && newsItems.length === 0}
 			<div class="no-news">
 				<p>No recent security news available. Check back soon for updates.</p>
 			</div>
