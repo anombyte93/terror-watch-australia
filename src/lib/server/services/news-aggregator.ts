@@ -6,14 +6,22 @@ import type { NewsCategory, RawFeedArticle, SourceConfig, StoredArticle } from '
 const parser = new Parser();
 
 export const SOURCES: SourceConfig[] = [
-  { name: 'ABC News', url: 'https://www.abc.net.au/news/feed/51120/rss.xml' },
-  { name: 'SBS News', url: 'https://www.sbs.com.au/news/topic/australia/feed' },
+  // ABC News - Latest news feed
+  { name: 'ABC News', url: 'https://www.abc.net.au/news/feed/2942460/rss.xml' },
+  // ABC News - Just In (breaking news)
+  { name: 'ABC Just In', url: 'https://www.abc.net.au/news/feed/45910/rss.xml' },
+  // SBS News - World News
+  { name: 'SBS News', url: 'https://www.sbs.com.au/news/topic/world/feed' },
+  // The Guardian Australia
   { name: 'The Guardian AU', url: 'https://www.theguardian.com/australia-news/rss' },
-  { name: 'SMH', url: 'https://www.smh.com.au/rss/feed.xml' },
-  { name: 'news.com.au', url: 'https://www.news.com.au/content-feeds/latest-news-national/' }
+  // SMH - National news
+  { name: 'SMH', url: 'https://www.smh.com.au/rss/national.xml' },
+  // 9News Australia
+  { name: '9News', url: 'https://www.9news.com.au/rss' }
 ];
 
-const KEYWORDS = [
+// Primary keywords - terrorism and national security (high priority)
+const PRIMARY_KEYWORDS = [
   'terrorism',
   'terrorist',
   'terror attack',
@@ -23,15 +31,49 @@ const KEYWORDS = [
   'extremist',
   'extremism',
   'radicalisation',
-  'bomb',
+  'bomb threat',
   'explosive',
   'hostage',
   'security threat',
   'counter-terrorism',
+  'counter terrorism',
   'islamic state',
   'isis',
-  'al-qaeda'
+  'al-qaeda',
+  'afp',
+  'australian federal police',
+  'security alert',
+  'security warning'
 ];
+
+// Secondary keywords - general security and crime (lower priority, used as fallback)
+const SECONDARY_KEYWORDS = [
+  'police',
+  'crime',
+  'arrest',
+  'attack',
+  'shooting',
+  'stabbing',
+  'incident',
+  'emergency',
+  'security',
+  'safety',
+  'warning',
+  'alert',
+  'investigation',
+  'suspect',
+  'detained',
+  'charged',
+  'court',
+  'threat',
+  'dangerous',
+  'manhunt',
+  'lockdown',
+  'evacuation'
+];
+
+// Combined for relevance check
+const KEYWORDS = [...PRIMARY_KEYWORDS, ...SECONDARY_KEYWORDS];
 
 const STATE_PATTERNS: Record<string, string[]> = {
   NSW: ['nsw', 'new south wales', 'sydney', 'wollongong', 'newcastle'],
@@ -161,7 +203,7 @@ export function categorizeArticle(title: string, content: string): NewsCategory 
   if (/(community|awareness|safety|campaign|program|training|outreach|education)/.test(text))
     return 'community';
 
-  return 'community';
+  return 'general';
 }
 
 const extractState = (title: string, content: string): string | null => {

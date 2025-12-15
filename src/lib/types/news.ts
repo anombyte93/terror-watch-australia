@@ -1,4 +1,4 @@
-export type NewsCategory = 'incident' | 'arrest' | 'policy' | 'community';
+export type NewsCategory = 'incident' | 'arrest' | 'policy' | 'community' | 'general';
 
 export interface SourceConfig {
   name: string;

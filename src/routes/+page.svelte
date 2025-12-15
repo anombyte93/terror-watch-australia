@@ -2,19 +2,85 @@
 	import Button from '$lib/components/Button.svelte';
 	import Card from '$lib/components/Card.svelte';
 	import Container from '$lib/components/Container.svelte';
+	import type { PageData } from './$types';
 
-	type Category = 'incident' | 'arrest' | 'policy' | 'community';
+	const { data }: { data: PageData } = $props();
+
+	type Category = 'incident' | 'arrest' | 'policy' | 'community' | 'general';
 	type Tone = 'default' | 'muted' | 'level-1' | 'level-2' | 'level-3' | 'level-4' | 'level-5';
 
-	const threatLevel = {
-		level: 3,
-		label: 'PROBABLE',
-		description:
-			'Credible intelligence indicates a potential for terrorist activity. Authorities are actively monitoring and preparing.',
-		lastUpdated: '12 Feb 2025, 09:00 AEST',
-		message: 'Be alert in crowded places, report suspicious behaviour, and follow official guidance.',
-		tone: 'level-3' as Tone
-	};
+	// Reactive state for live updates
+	let threatLevel = $state(data.threatLevel);
+	let newsItems = $state(data.newsItems);
+	let lastRefresh = $state(new Date());
+	let refreshing = $state(false);
+
+	// Auto-refresh every 5 minutes
+	$effect(() => {
+		const interval = setInterval(async () => {
+			await refreshData();
+		}, 5 * 60 * 1000); // 5 minutes
+
+		return () => clearInterval(interval);
+	});
+
+	async function refreshData() {
+		if (refreshing) return;
+		refreshing = true;
+
+		try {
+			// Trigger news refresh
+			await fetch('/api/news', { method: 'POST' }).catch(() => {});
+
+			// Fetch updated data
+			const [threatRes, newsRes] = await Promise.all([
+				fetch('/api/threat-level'),
+				fetch('/api/news?limit=10&days=7')
+			]);
+
+			if (threatRes.ok) {
+				const threatData = await threatRes.json();
+				threatLevel = {
+					level: threatData.level,
+					label: threatData.name.toUpperCase(),
+					description: threatData.description || 'Current threat assessment for Australia.',
+					lastUpdated: new Date(threatData.fetchedAt).toLocaleString('en-AU', {
+						day: 'numeric',
+						month: 'short',
+						year: 'numeric',
+						hour: '2-digit',
+						minute: '2-digit',
+						timeZoneName: 'short'
+					}),
+					message: 'Stay vigilant and report suspicious activity to the National Security Hotline.',
+					tone: `level-${threatData.level}` as Tone
+				};
+			}
+
+			if (newsRes.ok) {
+				const articles = await newsRes.json();
+				newsItems = articles.map((article: any) => ({
+					id: article.id,
+					title: article.title,
+					summary: article.summary || article.title,
+					time: new Date(article.published_at).toLocaleDateString('en-AU', {
+						day: 'numeric',
+						month: 'short',
+						year: 'numeric'
+					}),
+					category: article.category || 'general',
+					url: article.url,
+					source: article.source
+				}));
+			}
+
+			lastRefresh = new Date();
+		} catch (err) {
+			console.error('Failed to refresh data:', err);
+		} finally {
+			refreshing = false;
+		}
+	}
 
 	const threatScale = [
 		{ level: 1, label: 'NOT EXPECTED', description: 'No specific threat identified.', color: 'var(--color-level-1)' },
@@ -38,47 +104,17 @@
 		incident: 'Incident',
 		arrest: 'Arrest & disruption',
 		policy: 'Policy & guidance',
-		community: 'Community outreach'
+		community: 'Community outreach',
+		general: 'Security news'
 	};
 
 	const categoryTones: Record<Category, Tone> = {
 		incident: 'level-5',
 		arrest: 'level-2',
 		policy: 'muted',
-		community: 'level-1'
+		community: 'level-1',
+		general: 'default'
 	};
-
-	const newsItems: Array<{
-		title: string;
-		summary: string;
-		time: string;
-		category: Category;
-	}> = [
-		{
-			title: 'Coordinated operation results in multiple arrests in NSW',
-			summary: 'Joint ASIO and NSW Police investigation disrupts suspected planning activity with rapid follow-up searches.',
-			time: '12 Feb 2025',
-			category: 'arrest'
-		},
-		{
-			title: 'Updated crowded-places security advice issued',
-			summary: 'Home Affairs releases refreshed guidance for event organisers and venue operators ahead of peak season.',
-			time: '11 Feb 2025',
-			category: 'policy'
-		},
-		{
-			title: 'Suspicious package investigated at regional transport hub',
-			summary: 'Police declared the area safe after controlled assessment. Increased patrols remain in place.',
-			time: '10 Feb 2025',
-			category: 'incident'
-		},
-		{
-			title: 'Community liaison teams expand school outreach',
-			summary: 'New briefings scheduled to improve reporting confidence and ensure timely tips from families and educators.',
-			time: '9 Feb 2025',
-			category: 'community'
-		}
-	];
 
 	const guidanceCards = [
 		{
@@ -223,24 +259,45 @@
 	<Container width="wide">
 		<div class="section-header">
 			<div>
-				<p class="eyebrow">Signals &amp; news</p>
+				<p class="eyebrow">
+					<span class="live-indicator" class:refreshing></span>
+					Signals &amp; news
+					{#if refreshing}
+						<span class="refresh-status">Updating...</span>
+					{/if}
+				</p>
 				<h2>Recent intelligence-informed updates</h2>
-				<p class="muted">Verified signals, operations, and guidance updates from official sources.</p>
+				<p class="muted">
+					Live feed from Australian news sources.
+					<button class="refresh-btn" onclick={refreshData} disabled={refreshing}>
+						{refreshing ? 'Refreshing...' : 'Refresh now'}
+					</button>
+				</p>
 			</div>
 			<Button variant="accent" href="#contacts">Emergency contacts</Button>
 		</div>
 
 		<div class="grid news-grid">
 			{#each newsItems as item}
-				<Card tone={categoryTones[item.category]} eyebrow={categoryLabels[item.category]} title={item.title}>
-					<p>{item.summary}</p>
-					<div class="meta cluster">
-						<span class="chip">{item.time}</span>
-						<span class={`chip ${item.category}`}>{categoryLabels[item.category]}</span>
-					</div>
-				</Card>
+				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
+				<a href={item.url} target="_blank" rel="noopener noreferrer" class="news-link">
+					<Card tone={categoryTones[category]} eyebrow={categoryLabels[category]} title={item.title}>
+						<p>{item.summary}</p>
+						<div class="meta cluster">
+							<span class="chip">{item.time}</span>
+							{#if item.source}
+								<span class="chip source">{item.source}</span>
+							{/if}
+						</div>
+					</Card>
+				</a>
 			{/each}
 		</div>
+		{#if newsItems.length === 0}
+			<div class="no-news">
+				<p>No recent security news available. Check back soon for updates.</p>
+			</div>
+		{/if}
 	</Container>
 </section>
 
@@ -392,6 +449,85 @@
 
 	.news-grid {
 		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	}
+
+	.news-link {
+		text-decoration: none;
+		color: inherit;
+		display: block;
+		transition: transform 0.15s ease, box-shadow 0.15s ease;
+	}
+
+	.news-link:hover {
+		transform: translateY(-2px);
+	}
+
+	.news-link:hover :global(.card) {
+		box-shadow: var(--shadow-md);
+		border-color: var(--color-primary);
+	}
+
+	.no-news {
+		padding: 2rem;
+		text-align: center;
+		background: var(--surface-muted);
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
+	}
+
+	.chip.source {
+		background: var(--surface-panel);
+		font-size: 0.85rem;
+	}
+
+	.live-indicator {
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		background: #22c55e;
+		border-radius: 50%;
+		margin-right: 0.5rem;
+		animation: pulse 2s infinite;
+	}
+
+	.live-indicator.refreshing {
+		background: #f97316;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.5; }
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+
+	.refresh-status {
+		font-size: 0.85rem;
+		color: #f97316;
+		margin-left: 0.5rem;
+	}
+
+	.refresh-btn {
+		background: none;
+		border: none;
+		color: var(--color-primary);
+		font-size: 0.9rem;
+		cursor: pointer;
+		text-decoration: underline;
+		padding: 0;
+		margin-left: 0.5rem;
+	}
+
+	.refresh-btn:hover:not(:disabled) {
+		opacity: 0.8;
+	}
+
+	.refresh-btn:disabled {
+		color: var(--text-tertiary);
+		cursor: not-allowed;
 	}
 
 	.guidance-grid {
