@@ -1,0 +1,238 @@
+:root {
+	color-scheme: light;
+	/* Brand palette */
+	--color-primary: #1e3a5f;
+	--color-primary-light: #2d5a8a;
+	--color-accent: #0d9488;
+	--color-accent-light: #14b8a6;
+	--color-gray-50: #f8fafc;
+	--color-gray-100: #f1f5f9;
+	--color-gray-200: #e2e8f0;
+	--color-gray-500: #64748b;
+	--color-gray-700: #334155;
+	--color-gray-900: #0f172a;
+	--color-level-1: #0891b2;
+	--color-level-2: #059669;
+	--color-level-3: #d97706;
+	--color-level-4: #ea580c;
+	--color-level-5: #dc2626;
+	--color-incident: #ef4444;
+	--color-arrest: #3b82f6;
+	--color-policy: #6b7280;
+	--color-community: #10b981;
+
+	/* Surfaces & text */
+	--surface-page: #f8fafc;
+	--surface-panel: #ffffff;
+	--surface-muted: #eef2f7;
+	--text-primary: #0f172a;
+	--text-secondary: #334155;
+	--border-subtle: #e2e8f0;
+	--shadow-soft: 0 12px 40px rgba(15, 23, 42, 0.08);
+	--shadow-raised: 0 14px 45px rgba(15, 23, 42, 0.12);
+
+	/* Layout */
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 18px;
+	--page-padding: clamp(1rem, 3vw, 2rem);
+	--container-width: 1200px;
+	--transition-fast: 150ms ease;
+	--transition-slow: 250ms ease;
+
+	/* Typography */
+	--font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+	--font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+	--line-height-base: 1.6;
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--surface-page: #0f172a;
+	--surface-panel: #111827;
+	--surface-muted: #16223a;
+	--text-primary: #e2e8f0;
+	--text-secondary: #cbd5e1;
+	--border-subtle: #1f2937;
+	--shadow-soft: 0 12px 35px rgba(0, 0, 0, 0.45);
+	--shadow-raised: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+/* Reset & base */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--surface-page);
+	color: var(--text-primary);
+	font-family: var(--font-sans);
+	font-size: 16px;
+	line-height: var(--line-height-base);
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-sans);
+	font-weight: 700;
+	color: var(--text-primary);
+	line-height: 1.2;
+	margin: 0 0 0.4em;
+	letter-spacing: -0.01em;
+}
+
+h1 {
+	font-size: clamp(2rem, 4vw, 2.75rem);
+}
+
+h2 {
+	font-size: clamp(1.5rem, 2.6vw, 2rem);
+}
+
+h3 {
+	font-size: clamp(1.25rem, 2vw, 1.5rem);
+}
+
+p {
+	margin: 0 0 0.75rem;
+	color: var(--text-secondary);
+}
+
+a {
+	color: var(--color-primary);
+	text-decoration: none;
+	transition: color var(--transition-fast);
+}
+
+a:hover {
+	color: var(--color-primary-light);
+}
+
+ul {
+	padding-left: 1.1rem;
+	margin: 0 0 1rem;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+}
+
+img,
+picture {
+	max-width: 100%;
+	display: block;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
+/* Utilities */
+.container {
+	width: min(var(--container-width), 100%);
+	margin: 0 auto;
+	padding-inline: var(--page-padding);
+}
+
+.narrow {
+	max-width: 960px;
+}
+
+.stack {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.cluster {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.grid-3 {
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.surface {
+	background: var(--surface-panel);
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-soft);
+}
+
+.muted {
+	color: var(--text-secondary);
+}
+
+.eyebrow {
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-size: 0.8rem;
+	color: var(--color-accent);
+	font-weight: 700;
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-weight: 600;
+	border-radius: 999px;
+	padding: 0.35rem 0.75rem;
+	background: var(--surface-muted);
+	color: var(--text-primary);
+	border: 1px solid var(--border-subtle);
+}
+
+.sr-only {
+	border: 0;
+	clip: rect(0, 0, 0, 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+}
+
+@media (min-width: 640px) {
+	body {
+		font-size: 17px;
+	}
+
+	:root {
+		--page-padding: clamp(1.2rem, 2.5vw, 2.5rem);
+	}
+}
+
+@media (min-width: 1024px) {
+	body {
+		font-size: 18px;
+	}
+}
