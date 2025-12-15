@@ -25,6 +25,13 @@
 	let lastRefresh = $state(new Date());
 	let refreshing = $state(false);
 
+	// Auto-load news on mount if empty (server-side may return empty on first visit)
+	$effect(() => {
+		if (newsItems.length === 0 && !refreshing) {
+			refreshData();
+		}
+	});
+
 	// Auto-refresh every 5 minutes
 	$effect(() => {
 		const interval = setInterval(async () => {
