@@ -303,9 +303,9 @@
 			<Button variant="accent" href="#contacts">Emergency contacts</Button>
 		</div>
 
-		<p style="color: red; font-weight: bold;">DEBUG: newsItems count = {data.newsItems?.length ?? 'undefined'}</p>
+		<p style="color: red; font-weight: bold;">DEBUG: newsItems count = {newsItems.length}</p>
 		<div class="grid news-grid">
-			{#each data.newsItems ?? [] as item}
+			{#each newsItems as item}
 				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
 				<a href={item.url} target="_blank" rel="noopener noreferrer" class="news-link">
 					<Card tone={categoryTones[category]} eyebrow={categoryLabels[category]} title={item.title}>
@@ -320,7 +320,7 @@
 				</a>
 			{/each}
 		</div>
-		{#if (data.newsItems ?? []).length === 0}
+		{#if newsItems.length === 0}
 			<div class="no-news">
 				<p>No recent security news available. Check back soon for updates.</p>
 			</div>
