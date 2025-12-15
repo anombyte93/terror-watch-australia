@@ -303,8 +303,6 @@
 			<Button variant="accent" href="#contacts">Emergency contacts</Button>
 		</div>
 
-		<!-- Render news items directly from data prop -->
-		<p style="color: red; font-weight: bold;">DEBUG: data.newsItems={data.newsItems?.length ?? 'undefined'}</p>
 		<div class="grid news-grid">
 			{#each data.newsItems ?? [] as item}
 				{@const category = (item.category in categoryLabels ? item.category : 'general') as Category}
